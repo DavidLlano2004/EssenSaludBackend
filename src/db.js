@@ -5,14 +5,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // export const sequelize = new Sequelize(
-//   process.env.DB_NAME, //Nombre base de datos
-//   process.env.DB_USER, // Usuario
-//   process.env.DB_PASSWORD,
+//   "proyecto_web", //Nombre base de datos
+//   "proyecto_web", // Usuario
+//   "admin1234",
 //   {
 //     host: "localhost",
 //     dialect: "mysql",
-//     port: process.env.DB_PORT || 3306, // opcional
-//     logging: false,
+//     port: 3306,
 //   }
 // );
 

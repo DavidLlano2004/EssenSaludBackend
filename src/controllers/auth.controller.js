@@ -2,8 +2,11 @@ import { QueryTypes } from "sequelize";
 import { TOKEN_SECRET } from "../config.js";
 import { sequelize } from "../db.js";
 import { createAccesToken } from "../libs/jwt.js";
+import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+const id = uuidv4();
 
 export const register = async (req, res) => {
   const { email, password, name, birthday, rol } = req.body;
@@ -13,11 +16,12 @@ export const register = async (req, res) => {
 
     await sequelize.query(
       `
-      INSERT INTO users (name, email, password, birthday, rol, state, fecha_registro , createdAt, updatedAt)
-      VALUES (:name, :email, :password, :birthday, :rol, true, NOW(), NOW(), NOW())
+      INSERT INTO users (id , name, email, password, birthday, rol, state, fecha_registro , createdAt, updatedAt)
+      VALUES (:id , :name, :email, :password, :birthday, :rol, false, NOW(), NOW(), NOW())
       `,
       {
         replacements: {
+          id,
           name,
           email,
           password: passwordHash,

@@ -1,5 +1,7 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
+import { v4 as uuidv4 } from "uuid";
+const id = uuidv4();
 
 export const createHealthyCenter = async (req, res) => {
   const { name, address, phone, city } = req.body;
@@ -7,11 +9,12 @@ export const createHealthyCenter = async (req, res) => {
   try {
     await sequelize.query(
       `
-      INSERT INTO healthy_centers (name, address, phone, city, createdAt, updatedAt)
-      VALUES (:name , :address , :phone , :birthday , :city , NOW(), NOW())
+      INSERT INTO healthy_centers (id , name, address, phone, city, createdAt, updatedAt)
+      VALUES (:id , :name , :address , :phone , :birthday , :city , NOW(), NOW())
       `,
       {
         replacements: {
+          id,
           name,
           address,
           phone,
@@ -153,7 +156,7 @@ export const deleteHealthyCenter = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // 
+    //
     const [result] = await sequelize.query(
       `
       DELETE FROM healthy_centers
@@ -184,7 +187,7 @@ export const getTopCenters = async (req, res) => {
        GROUP BY hc.name
        ORDER BY total DESC`
     );
-   return res.status(200).json({
+    return res.status(200).json({
       message: "Centros mas utilizados para citas",
       response: results,
     });

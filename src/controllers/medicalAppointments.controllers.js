@@ -1,5 +1,7 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
+import { v4 as uuidv4 } from "uuid";
+const id = uuidv4();
 
 export const createMedicalAppointMent = async (req, res) => {
   const { affiliateId, professionalId, healthyCenterId, date_time, state } =
@@ -8,11 +10,12 @@ export const createMedicalAppointMent = async (req, res) => {
   try {
     await sequelize.query(
       `
-      INSERT INTO medical_appointments (affiliateId, professionalId, healthyCenterId, date_time ,state,  createdAt, updatedAt)
-      VALUES (:affiliateId , :professionalId , :healthyCenterId , :date_time ,:state, NOW(), NOW())
+      INSERT INTO medical_appointments (id , affiliateId, professionalId, healthyCenterId, date_time ,state,  createdAt, updatedAt)
+      VALUES (:id , :affiliateId , :professionalId , :healthyCenterId , :date_time ,:state, NOW(), NOW())
       `,
       {
         replacements: {
+          id,
           affiliateId,
           professionalId,
           healthyCenterId,

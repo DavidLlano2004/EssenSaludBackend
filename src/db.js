@@ -1,12 +1,24 @@
 // src/db.js
 import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
 
-export const sequelize = new Sequelize(
-  "proyecto_web", //Nombre base de datos
-  "proyecto_web", // Usuario
-  "admin1234",
-  {
-    host: "localhost",
-    dialect: "mysql",
-  }
-);
+dotenv.config();
+
+// export const sequelize = new Sequelize(
+//   process.env.DB_NAME, //Nombre base de datos
+//   process.env.DB_USER, // Usuario
+//   process.env.DB_PASSWORD,
+//   {
+//     host: "localhost",
+//     dialect: "mysql",
+//     port: process.env.DB_PORT || 3306, // opcional
+//     logging: false,
+//   }
+// );
+
+export const sequelize = new Sequelize(process.env.DB_URL, {
+  // host: "localhost",
+  dialect: "mysql",
+  // port: process.env.DB_PORT || 3306, // opcional
+  logging: false,
+});

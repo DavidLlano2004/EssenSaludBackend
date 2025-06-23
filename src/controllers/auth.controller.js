@@ -6,10 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const id = uuidv4();
-
 export const register = async (req, res) => {
   const { email, password, name, birthday, rol } = req.body;
+  const id = uuidv4();
 
   try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -135,7 +134,7 @@ export const verifyToken = async (req, res) => {
       WHERE id = :id
       `,
       {
-        replacements: { id: req.user.id },
+        replacements: { id: user.id },
         type: QueryTypes.SELECT,
       }
     );

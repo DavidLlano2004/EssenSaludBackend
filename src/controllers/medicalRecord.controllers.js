@@ -1,10 +1,10 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
-const id = uuidv4();
 
 export const createMedicalRecord = async (req, res) => {
   const { medicalAppointmentId, symptoms, diagnostic, treatment } = req.body;
+  const id = uuidv4();
 
   try {
     await sequelize.query(
@@ -71,7 +71,6 @@ export const updateMedicalRecord = async (req, res) => {
           symptoms,
           diagnostic,
           treatment,
-          updatedAt,
         },
         type: QueryTypes.UPDATE,
       }

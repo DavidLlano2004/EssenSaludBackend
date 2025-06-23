@@ -69,7 +69,6 @@ export const updateProfessional = async (req, res) => {
           specialty,
           license_number,
           centerId,
-          updatedAt,
         },
         type: QueryTypes.UPDATE,
       }

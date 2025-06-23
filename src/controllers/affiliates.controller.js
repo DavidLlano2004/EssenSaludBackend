@@ -90,7 +90,6 @@ export const updateAffiliate = async (req, res) => {
           address,
           phone,
           healthyPlanId,
-          updatedAt,
         },
         type: QueryTypes.UPDATE,
       }

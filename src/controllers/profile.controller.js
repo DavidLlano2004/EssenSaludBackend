@@ -46,7 +46,7 @@ export const getProfiles = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   const { id } = req.params; // ID del usuario a editar
-  const { name, email, birthday, rol, state, password } = req.body;
+  const { name, email, birthday, rol, state } = req.body;
 
   try {
     // 1. Actualizar usuario
@@ -58,7 +58,6 @@ export const updateProfile = async (req, res) => {
           birthday = :birthday,
           rol = :rol,
           state = :state,
-          password = :password,
           updatedAt = NOW()
       WHERE id = :id
       `,
@@ -70,8 +69,6 @@ export const updateProfile = async (req, res) => {
           birthday,
           rol,
           state,
-          password,
-          updatedAt
         },
         type: QueryTypes.UPDATE,
       }
@@ -100,7 +97,9 @@ export const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al actualizar el usuario" });
+    res
+      .status(500)
+      .json({ message: "Error al actualizar el usuario", error: error });
   }
 };
 
@@ -108,8 +107,7 @@ export const deleteUser = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // 
-    const [result] = await sequelize.query(
+    await sequelize.query(
       `
       DELETE FROM users
       WHERE id = :id

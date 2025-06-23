@@ -32,7 +32,7 @@ export const User = sequelize.define(
       allowNull: false,
     },
     rol: {
-      type: DataTypes.ENUM("afiliado", "profesional", "administrativo"),
+      type: DataTypes.ENUM("Afiliado", "Profesional", "Administrativo"),
       allowNull: false,
     },
     birthday: { type: DataTypes.DATEONLY, allowNull: false },

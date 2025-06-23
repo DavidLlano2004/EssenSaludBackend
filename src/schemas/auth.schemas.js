@@ -21,8 +21,3 @@ export const loginSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters" }),
 });
 
-export const updateProfileSchema = z.object({
-  password: z
-    .string({ requerid_error: "Password is required" })
-    .min(12, { message: "Password must be at least 12 characters" }),
-});

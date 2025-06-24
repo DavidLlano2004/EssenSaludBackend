@@ -2,6 +2,9 @@ import express from "express";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
+import healthyCenterRoutes from "./routes/healthyCenter.routes.js";
+import healthyPlansRoutes from "./routes/healthyPlan.routes.js";
+import affiliateRoutes from "./routes/affiliates.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -20,6 +23,13 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-app.use("/api", authRoutes , profileRoutes);
+app.use(
+  "/api",
+  authRoutes,
+  profileRoutes,
+  healthyCenterRoutes,
+  healthyPlansRoutes,
+  affiliateRoutes
+);
 
 export default app;

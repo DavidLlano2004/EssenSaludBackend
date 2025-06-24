@@ -10,7 +10,7 @@ export const createHealthyCenter = async (req, res) => {
     await sequelize.query(
       `
       INSERT INTO healthy_centers (id , name, address, phone, city, createdAt, updatedAt)
-      VALUES (:id , :name , :address , :phone , :birthday , :city , NOW(), NOW())
+      VALUES (:id , :name , :address , :phone , :city , NOW(), NOW())
       `,
       {
         replacements: {
@@ -60,7 +60,6 @@ export const updateHealthyCenter = async (req, res) => {
       UPDATE healthy_centers
       SET name = :name,
           address = :address,
-          birthday = :birthday,
           phone = :phone,
           city = :city,
           updatedAt = NOW()
@@ -68,6 +67,7 @@ export const updateHealthyCenter = async (req, res) => {
       `,
       {
         replacements: {
+          id,
           name,
           address,
           phone,
@@ -101,7 +101,9 @@ export const updateHealthyCenter = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al actualizar el centro" });
+    res
+      .status(500)
+      .json({ message: "Error al actualizar el centro", error: error });
   }
 };
 
@@ -155,8 +157,7 @@ export const deleteHealthyCenter = async (req, res) => {
   const { id } = req.params;
 
   try {
-    //
-    const [result] = await sequelize.query(
+    await sequelize.query(
       `
       DELETE FROM healthy_centers
       WHERE id = :id
@@ -167,7 +168,6 @@ export const deleteHealthyCenter = async (req, res) => {
       }
     );
 
-    // Sequelize no devuelve filas eliminadas, así que verificamos si el usuario existía antes
     return res.status(200).json({
       message: `Centro con ID ${id} eliminado correctamente.`,
     });

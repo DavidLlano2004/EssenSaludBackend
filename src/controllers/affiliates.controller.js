@@ -1,12 +1,11 @@
 import { QueryTypes } from "sequelize";
-import { sequelize } from "../db";
+import { sequelize } from "../db.js";
 
 export const createAffiliate = async (req, res) => {
   const {
     userId,
     document_type,
     document_number,
-    birthday,
     address,
     phone,
     healthyPlanId,
@@ -15,15 +14,14 @@ export const createAffiliate = async (req, res) => {
   try {
     await sequelize.query(
       `
-      INSERT INTO affiliates (userId, document_type, document_number, birthday, address, phone, healthyPlanId , createdAt, updatedAt)
-      VALUES (:userId , :document_type , :document_number , :birthday , :phone , :healthyPlanId , NOW(), NOW())
+      INSERT INTO affiliates (userId, document_type, document_number, address, phone, healthyPlanId , createdAt, updatedAt)
+      VALUES (:userId , :document_type , :document_number , :address, :phone , :healthyPlanId , NOW(), NOW())
       `,
-      {
+      {                  
         replacements: {
           userId,
           document_type,
           document_number,
-          birthday,
           address,
           phone,
           healthyPlanId,
@@ -39,7 +37,7 @@ export const createAffiliate = async (req, res) => {
       }
     );
 
-    if (!results || results.length === 0) {
+    if (!results || results?.length === 0) {
       return res
         .status(404)
         .json({ message: "Afiliado no encontrado después del registro" });
@@ -53,20 +51,14 @@ export const createAffiliate = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error?.errors[0].message });
+    res.status(500).json({ message: error });
   }
 };
 
 export const updateAffiliate = async (req, res) => {
   const { id } = req.params;
-  const {
-    document_type,
-    document_number,
-    birthday,
-    address,
-    phone,
-    healthyPlanId,
-  } = req.body;
+  const { document_type, document_number, address, phone, healthyPlanId } =
+    req.body;
 
   try {
     // 1. Actualizar usuario
@@ -75,7 +67,6 @@ export const updateAffiliate = async (req, res) => {
       UPDATE affiliates
       SET document_type = :document_type,
           document_number = :document_number,
-          birthday = :birthday,
           address = :address,
           phone = :phone,
           healthyPlanId = :healthyPlanId,

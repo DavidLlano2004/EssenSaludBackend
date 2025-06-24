@@ -129,7 +129,7 @@ export const verifyToken = async (req, res) => {
     if (err) return res.status(401).json({ message: "Unauthorized" });
     const [userFound] = await sequelize.query(
       `
-      SELECT id, email, name AS userName, birthday, createdAt, updatedAt
+      SELECT *
       FROM users
       WHERE id = :id
       `,

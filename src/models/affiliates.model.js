@@ -23,10 +23,6 @@ export const Affiliates = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    birthday: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
     address: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,11 +33,11 @@ export const Affiliates = sequelize.define(
     },
     healthyPlanId: {
       type: DataTypes.UUID,
-      allowNull: false,
       references: {
         model: "healthy_plans",
         key: "id",
       },
+      allowNull: true,
       onDelete: "RESTRICT", // evita borrar un plan si hay afiliados que lo usan
       onUpdate: "CASCADE",
     },

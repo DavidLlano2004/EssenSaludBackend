@@ -92,7 +92,11 @@ export const login = async (req, res) => {
 
     const token = await createAccesToken({ id: userFound.id });
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
 
     const dataUser = {
       id: userFound.id,
@@ -112,7 +116,6 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-
     res.status(500).json({ message: error });
   }
 };

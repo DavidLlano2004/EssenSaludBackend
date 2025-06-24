@@ -160,7 +160,7 @@ export const getAffiliates = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteAffiliate = async (req, res) => {
   const { id } = req.params;
 
   try {

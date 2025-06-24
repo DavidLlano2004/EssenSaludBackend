@@ -16,11 +16,11 @@ export const Professional = sequelize.define(
     },
     specialty: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     license_number: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     centerId: {
       type: DataTypes.UUID,

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authRequired } from "../middlewares/validateToken.js";
 import {
   createAffiliate,
-  deleteUser,
+  deleteAffiliate,
   getAffiliates,
   getOneAffiliate,
   getUpcomingAppointments,
@@ -22,7 +22,7 @@ router.post(
   createAffiliate
 );
 router.put("/affiliate/:id", authRequired, updateAffiliate);
-router.delete("/affiliate/:id", authRequired, deleteUser);
+router.delete("/affiliate/:id", authRequired, deleteAffiliate);
 router.get(
   "/affiliate/appointments/upcoming/:id",
   authRequired,

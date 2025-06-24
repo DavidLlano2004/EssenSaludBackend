@@ -40,9 +40,10 @@ export const createProfessional = async (req, res) => {
       message: "Profesional registrado correctamente",
       response: professionalData,
     });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error?.errors[0].message });
+    res.status(500).json({ message: message });
   }
 };
 

@@ -8,6 +8,7 @@ import affiliateRoutes from "./routes/affiliates.routes.js";
 import professionalRoutes from "./routes/professional.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(
 );
 
 app.use(morgan("dev"));
+
+app.use("/api/users", userRoutes);
 
 app.use(express.json());
 

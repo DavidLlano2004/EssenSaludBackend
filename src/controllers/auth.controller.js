@@ -16,7 +16,7 @@ export const register = async (req, res) => {
     await sequelize.query(
       `
       INSERT INTO users (id , name, email, password, birthday, rol, state, fecha_registro , createdAt, updatedAt)
-      VALUES (:id , :name, :email, :password, :birthday, :rol, false, NOW(), NOW(), NOW())
+      VALUES (:id , :name, :email, :password, :birthday, :rol, true, NOW(), NOW(), NOW())
       `,
       {
         replacements: {

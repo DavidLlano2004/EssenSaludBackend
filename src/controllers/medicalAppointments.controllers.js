@@ -3,15 +3,15 @@ import { sequelize } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
 
 export const createMedicalAppointMent = async (req, res) => {
-  const { affiliateId, professionalId, healthyCenterId, date_time, state } =
-  req.body;
+  const { affiliateId, professionalId, healthyCenterId, date, state, time } =
+    req.body;
   const id = uuidv4();
 
   try {
     await sequelize.query(
       `
-      INSERT INTO medical_appointments (id , affiliateId, professionalId, healthyCenterId, date_time ,state,  createdAt, updatedAt)
-      VALUES (:id , :affiliateId , :professionalId , :healthyCenterId , :date_time ,:state, NOW(), NOW())
+      INSERT INTO medical_appointments (id , affiliateId, professionalId, healthyCenterId, date , time ,state,  createdAt, updatedAt)
+      VALUES (:id , :affiliateId , :professionalId , :healthyCenterId , :date , :time ,:state, NOW(), NOW())
       `,
       {
         replacements: {
@@ -19,8 +19,9 @@ export const createMedicalAppointMent = async (req, res) => {
           affiliateId,
           professionalId,
           healthyCenterId,
-          date_time,
+          date,
           state,
+          time,
         },
       }
     );
@@ -141,9 +142,59 @@ export const getMedicalAppointments = async (req, res) => {
   try {
     const medicalAppointments = await sequelize.query(
       `
-      SELECT *
-      FROM medical_appointments
-      ORDER BY createdAt DESC
+      SELECT 
+        m.*,
+        JSON_OBJECT(
+          'userId', a.userId,
+          'document_number', a.document_number,
+          'address', a.address,
+          'user', JSON_OBJECT(
+            'name', ua.name,
+            'email', ua.email
+          ),
+          'healthyPlan', JSON_OBJECT(
+            'id', ha.id,
+            'name', ha.name,
+            'month_cost', ha.month_cost
+          )
+        ) AS infoAffiliate,
+
+        JSON_OBJECT(
+          'userId', p.userId,
+          'specialty', p.specialty,
+          'license_number', p.license_number,
+          'user', JSON_OBJECT(
+            'name', up.name,
+            'email', up.email
+          )
+        ) AS infoProfessional,
+
+        JSON_OBJECT(
+          'id', h.id,
+          'name', h.name,
+          'address', h.address,
+          'phone', h.phone,
+          'city', h.city
+
+        ) AS infoHealthyCenter
+
+      FROM 
+        medical_appointments m
+
+      -- Afiliado y sus joins
+      LEFT JOIN affiliates a ON m.affiliateId = a.userId
+      LEFT JOIN users ua ON a.userId = ua.id
+      LEFT JOIN healthy_plans ha ON a.healthyPlanId = ha.id
+
+      -- Profesional y su usuario
+      LEFT JOIN professionals p ON m.professionalId = p.userId
+      LEFT JOIN users up ON p.userId = up.id
+
+      -- Centro de salud
+      LEFT JOIN healthy_centers h ON m.healthyCenterId = h.id
+
+      ORDER BY 
+        m.createdAt DESC;
       `,
       {
         type: QueryTypes.SELECT,

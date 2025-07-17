@@ -6,6 +6,7 @@ import healthyCenterRoutes from "./routes/healthyCenter.routes.js";
 import healthyPlansRoutes from "./routes/healthyPlan.routes.js";
 import affiliateRoutes from "./routes/affiliates.routes.js";
 import professionalRoutes from "./routes/professional.routes.js";
+import medicalAppointmentRoutes from "./routes/medicalAppointments.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -31,7 +32,9 @@ app.use(
   healthyCenterRoutes,
   healthyPlansRoutes,
   affiliateRoutes,
-  professionalRoutes
+  professionalRoutes,
+  medicalAppointmentRoutes
+
 );
 
 export default app;

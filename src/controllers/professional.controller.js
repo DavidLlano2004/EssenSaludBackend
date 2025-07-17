@@ -108,9 +108,20 @@ export const getOneProfessional = async (req, res) => {
 
   const [professional] = await sequelize.query(
     `
-      SELECT *
-      FROM professionals
-      WHERE userId = :id
+      SELECT p.*,
+      JSON_OBJECT(
+      'id', h.id,
+      'name', h.name,
+      'address', h.address,
+      'phone', h.phone,
+      'city' , h.city
+      ) AS infoHealthyCenter
+      FROM 
+      professionals p
+      LEFT JOIN 
+      healthy_centers h ON p.centerId = h.id
+      WHERE 
+      p.userId = :id;
       `,
     {
       replacements: { id: id },
@@ -130,9 +141,14 @@ export const getProfessionals = async (req, res) => {
   try {
     const professionals = await sequelize.query(
       `
-      SELECT *
-      FROM professionals
-      ORDER BY createdAt DESC
+      SELECT 
+      p.*, 
+      u.*
+      FROM 
+      professionals p
+      LEFT JOIN 
+      users u ON p.userId = u.id
+      ORDER BY p.createdAt DESC
       `,
       {
         type: QueryTypes.SELECT,

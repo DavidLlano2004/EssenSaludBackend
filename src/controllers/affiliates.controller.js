@@ -1,5 +1,6 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
+import { Affiliates } from "../models/affiliates.model.js";
 
 export const createAffiliate = async (req, res) => {
   const {
@@ -17,7 +18,7 @@ export const createAffiliate = async (req, res) => {
       INSERT INTO affiliates (userId, document_type, document_number, address, phone, healthyPlanId , createdAt, updatedAt)
       VALUES (:userId , :document_type , :document_number , :address, :phone , :healthyPlanId , NOW(), NOW())
       `,
-      {                  
+      {
         replacements: {
           userId,
           document_type,
@@ -57,60 +58,33 @@ export const createAffiliate = async (req, res) => {
 
 export const updateAffiliate = async (req, res) => {
   const { id } = req.params;
-  const { document_type, document_number, address, phone, healthyPlanId } =
-    req.body;
+  const fieldsToUpdate = req.body;
 
   try {
-    // 1. Actualizar usuario
-    await sequelize.query(
-      `
-      UPDATE affiliates
-      SET document_type = :document_type,
-          document_number = :document_number,
-          address = :address,
-          phone = :phone,
-          healthyPlanId = :healthyPlanId,
-          updatedAt = NOW()
-      WHERE userId = :id
-      `,
-      {
-        replacements: {
-          document_type,
-          document_number,
-          birthday,
-          address,
-          phone,
-          healthyPlanId,
-        },
-        type: QueryTypes.UPDATE,
-      }
-    );
+    const [updatedCount] = await Affiliates.update(fieldsToUpdate, {
+      where: { userId: id },
+    });
 
-    const [updateAffiliateEnd] = await sequelize.query(
-      `
-      SELECT *
-      FROM affiliates
-      WHERE userId = :id
-      `,
-      {
-        replacements: { id },
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    if (!updateAffiliateEnd) {
+    if (updatedCount === 0) {
       return res
         .status(404)
-        .json({ message: "Afiliado no encontrado despues de actualizar" });
+        .json({ message: "Afiliado no encontrado o sin cambios" });
     }
+
+    const updatedAffiliate = await Affiliates.findOne({
+      where: { userId: id },
+    });
 
     res.status(200).json({
       message: "Afiliado actualizado correctamente",
-      response: updateAffiliateEnd,
+      response: updatedAffiliate,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al actualizar el afiliado" });
+    res.status(500).json({
+      message: "Error al actualizar el afiliado",
+      error: error.message || error,
+    });
   }
 };
 
@@ -119,9 +93,19 @@ export const getOneAffiliate = async (req, res) => {
 
   const [affiliateFound] = await sequelize.query(
     `
-      SELECT *
-      FROM affiliates
-      WHERE userId = :id
+    SELECT a.*,
+    JSON_OBJECT(
+    'id', h.id,
+    'name', h.name,
+    'description', h.description,
+    'month_cost', h.month_cost
+    ) AS infoHealthyPlan
+     FROM 
+     affiliates a 
+     LEFT JOIN 
+     healthy_plans h ON a.healthyPlanId = h.id
+     WHERE 
+     a.userId = :id;
       `,
     {
       replacements: { id: id },
@@ -141,9 +125,14 @@ export const getAffiliates = async (req, res) => {
   try {
     const affiliates = await sequelize.query(
       `
-      SELECT *
-      FROM affiliates
-      ORDER BY createdAt DESC
+      SELECT 
+      a.*, 
+      u.*
+      FROM 
+      affiliates a
+      LEFT JOIN 
+      users u ON a.userId = u.id
+      ORDER BY a.createdAt DESC
       `,
       {
         type: QueryTypes.SELECT,
@@ -191,7 +180,7 @@ export const getUpcomingAppointments = async (req, res) => {
   try {
     const results = await sequelize.query(
       `SELECT * FROM medical_appointments 
-       WHERE affiliatesId = :id 
+       WHERE affiliateId = :id 
          AND date_time > NOW() 
          AND state = 'programada'`,
       { replacements: { id }, type: QueryTypes.SELECT }

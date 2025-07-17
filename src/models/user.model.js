@@ -27,6 +27,10 @@ export const User = sequelize.define(
       unique: true,
       allowNull: false,
     },
+    gender: {
+      type: DataTypes.ENUM("Masculino" , "Femenino" , "Otro"),
+      allowNull: false,
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,

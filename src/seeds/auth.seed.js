@@ -14,9 +14,9 @@ export const seedInitUserAdmin = async () => {
       await sequelize.query(
         `
         INSERT INTO users 
-          (id, name, email, password, rol, birthday, state, fecha_registro, createdAt, updatedAt) 
+          (id, name, gender, email, password, rol, birthday, state, fecha_registro, createdAt, updatedAt) 
         VALUES 
-          (:id1, 'Admin', 'admin@gmail.com', :password, 'Administrativo', '2004-01-17', true, NOW(), NOW(), NOW());
+          (:id1 , 'Admin', 'Masculino', 'admin@gmail.com', :password, 'Administrativo', '2004-01-17', true, NOW(), NOW(), NOW());
       `,
         {
           replacements: {

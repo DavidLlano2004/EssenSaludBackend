@@ -5,7 +5,7 @@ import { User } from "../models/user.model.js";
 export const getOneProfile = async (req, res) => {
   const [userFound] = await sequelize.query(
     `
-      SELECT id , email, name , birthday, rol , createdAt, updatedAt
+      SELECT *
       FROM users
       WHERE id = :id
       `,
@@ -26,7 +26,7 @@ export const getProfiles = async (req, res) => {
   try {
     const users = await sequelize.query(
       `
-      SELECT id, email, name , birthday, rol, state, createdAt, updatedAt
+      SELECT *
       FROM users
       ORDER BY createdAt DESC
       `,
@@ -55,12 +55,24 @@ export const updateProfile = async (req, res) => {
     });
 
     if (updatedCount === 0) {
-      return res.status(404).json({ message: "Usuario no encontrado o sin cambios" });
+      return res
+        .status(404)
+        .json({ message: "Usuario no encontrado o sin cambios" });
     }
 
     const updatedUser = await User.findOne({
       where: { id },
-      attributes: ["id", "email", "name", "birthday", "rol", "state", "createdAt", "updatedAt"],
+      attributes: [
+        "id",
+        "email",
+        "name",
+        "birthday",
+        "gender",
+        "rol",
+        "state",
+        "createdAt",
+        "updatedAt",
+      ],
     });
 
     res.status(200).json({

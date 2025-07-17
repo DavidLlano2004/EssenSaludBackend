@@ -33,8 +33,13 @@ export const MedicalAppointment = sequelize.define(
         key: "id",
       },
     },
-    date_time: {
-      type: DataTypes.DATE,
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+
+    time: {
+      type: DataTypes.TIME,
       allowNull: true,
     },
     state: {

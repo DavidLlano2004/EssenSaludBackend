@@ -67,12 +67,12 @@ Affiliates.belongsTo(HealthyPlan, {
 //  Relación Afiliado - Citas médicas (1:N)
 //
 Affiliates.hasMany(MedicalAppointment, {
-  foreignKey: "affiliatesId",
+  foreignKey: "affiliateId",
   onDelete: "CASCADE",
   constraints: true,
 });
 MedicalAppointment.belongsTo(Affiliates, {
-  foreignKey: "affiliatesId",
+  foreignKey: "affiliateId",
   constraints: true,
 });
 

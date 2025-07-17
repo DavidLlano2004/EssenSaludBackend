@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
-  const { email, password, name, birthday, rol } = req.body;
+  const { email, password, name, birthday, rol, gender } = req.body;
   const id = uuidv4();
 
   try {
@@ -15,12 +15,13 @@ export const register = async (req, res) => {
 
     await sequelize.query(
       `
-      INSERT INTO users (id , name, email, password, birthday, rol, state, fecha_registro , createdAt, updatedAt)
-      VALUES (:id , :name, :email, :password, :birthday, :rol, false, NOW(), NOW(), NOW())
+      INSERT INTO users (id , gender , name, email, password, birthday, rol, state, fecha_registro , createdAt, updatedAt)
+      VALUES (:id , :gender , :name, :email, :password, :birthday, :rol, false, NOW(), NOW(), NOW())
       `,
       {
         replacements: {
           id,
+          gender,
           name,
           email,
           password: passwordHash,
@@ -55,6 +56,7 @@ export const register = async (req, res) => {
       name: userData.name,
       birthday: userData.birthday,
       rol: userData.rol,
+      gender: userData.gender,
       createdAt: userData.createdAt,
       updatedAt: userData.updatedAt,
     };
@@ -105,6 +107,7 @@ export const login = async (req, res) => {
       fecha_registro: userFound.fecha_registro,
       rol: userFound.rol,
       state: userFound.state,
+      gender: userFound.gender,
       birthday: userFound.birthday,
       createdAt: userFound.createdAt,
       updatedAt: userFound.updatedAt,

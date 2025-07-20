@@ -6,8 +6,9 @@ import {
   getInvoices,
   getOneInvoice,
   getPendingInvoices,
-  getTotalBillingByPlan,
+  getTotalPendingByUser,
   updateInvoice,
+  getInvoicesByUser,
 } from "../controllers/invoice.controller.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { createInvoiceShema } from "../schemas/invoice.schema.js";
@@ -25,6 +26,7 @@ router.post(
 router.put("/invoice/:id", authRequired, updateInvoice);
 router.delete("/invoice/:id", authRequired, deleteInvoice);
 router.get("/invoice/pending", authRequired, getPendingInvoices);
-router.get("/invoice/billing/by-plan", authRequired, getTotalBillingByPlan);
+router.get("/invoice-total/:id", authRequired, getTotalPendingByUser);
+router.get("/invoices-user/:id", authRequired, getInvoicesByUser);
 
 export default router;

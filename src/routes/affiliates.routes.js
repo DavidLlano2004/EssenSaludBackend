@@ -5,7 +5,7 @@ import {
   deleteAffiliate,
   getAffiliates,
   getOneAffiliate,
-  getUpcomingAppointments,
+  getUpcomingAppointmentsAffiliate,
   updateAffiliate,
 } from "../controllers/affiliates.controller.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -26,7 +26,7 @@ router.delete("/affiliate/:id", authRequired, deleteAffiliate);
 router.get(
   "/affiliate/appointments/upcoming/:id",
   authRequired,
-  getUpcomingAppointments
+  getUpcomingAppointmentsAffiliate
 );
 
 export default router;

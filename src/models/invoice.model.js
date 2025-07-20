@@ -26,7 +26,6 @@ export const Invoice = sequelize.define(
         model: "medical_appointments",
         key: "id",
       },
-      onDelete: "RESTRICT", // evita borrar un plan si hay afiliados que lo usan
       onUpdate: "CASCADE",
     },
     cost: {
@@ -34,7 +33,7 @@ export const Invoice = sequelize.define(
       allowNull: false,
     },
     payment_status: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.ENUM("Pendiente", "Pagada"),
       allowNull: false,
     },
   },

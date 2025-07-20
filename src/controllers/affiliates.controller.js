@@ -175,18 +175,76 @@ export const deleteAffiliate = async (req, res) => {
   }
 };
 
-export const getUpcomingAppointments = async (req, res) => {
+export const getUpcomingAppointmentsAffiliate = async (req, res) => {
   const { id } = req.params;
   try {
     const results = await sequelize.query(
-      `SELECT * FROM medical_appointments 
-       WHERE affiliateId = :id 
-         AND date_time > NOW() 
-         AND state = 'programada'`,
+      `SELECT 
+  m.*,
+  JSON_OBJECT(
+    'userId', a.userId,
+    'document_number', a.document_number,
+    'address', a.address,
+    'phone', a.phone,
+    'user', JSON_OBJECT(
+      'name', ua.name,
+      'email', ua.email,
+      'gender', ua.gender,
+      'birthday', ua.birthday
+    ),
+    'healthyPlan', JSON_OBJECT(
+      'id', ha.id,
+      'name', ha.name,
+      'month_cost', ha.month_cost
+    )
+  ) AS infoAffiliate,
+
+  JSON_OBJECT(
+    'userId', p.userId,
+    'specialty', p.specialty,
+    'license_number', p.license_number,
+    'user', JSON_OBJECT(
+      'name', up.name,
+      'email', up.email
+    )
+  ) AS infoProfessional,
+
+  JSON_OBJECT(
+    'id', h.id,
+    'name', h.name,
+    'address', h.address,
+    'phone', h.phone,
+    'city', h.city
+  ) AS infoHealthyCenter
+
+FROM 
+  medical_appointments m
+
+-- Afiliado y sus joins
+LEFT JOIN affiliates a ON m.affiliateId = a.userId
+LEFT JOIN users ua ON a.userId = ua.id
+LEFT JOIN healthy_plans ha ON a.healthyPlanId = ha.id
+
+-- Profesional y su usuario
+LEFT JOIN professionals p ON m.professionalId = p.userId
+LEFT JOIN users up ON p.userId = up.id
+
+-- Centro de salud
+LEFT JOIN healthy_centers h ON m.healthyCenterId = h.id
+
+-- Filtro por afiliado y fechas
+WHERE 
+  m.affiliateId = :id
+  AND m.date BETWEEN NOW() AND NOW() + INTERVAL 3 DAY
+  AND m.state = 'programada'
+
+ORDER BY 
+  m.createdAt DESC;
+`,
       { replacements: { id }, type: QueryTypes.SELECT }
     );
     return res.status(200).json({
-      message: "Citas proximas encontradas",
+      message: "Citas próximas en los siguientes 3 días encontradas",
       response: results,
     });
   } catch (error) {

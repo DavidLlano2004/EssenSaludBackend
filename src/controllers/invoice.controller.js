@@ -1,6 +1,7 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
+import { Invoice } from "../models/invoice.model.js";
 
 export const createInvoice = async (req, res) => {
   const { affiliateId, medicalAppointmentId, cost, payment_status } = req.body;
@@ -51,48 +52,22 @@ export const createInvoice = async (req, res) => {
 
 export const updateInvoice = async (req, res) => {
   const { id } = req.params;
-  const { affiliateId, medicalAppointmentId, cost, payment_status } = req.body;
+  const fieldsToUpdate = req.body;
 
   try {
-    // 1. Actualizar usuario
-    await sequelize.query(
-      `
-      UPDATE invoices
-      SET affiliateId = :affiliateId,
-          medicalAppointmentId = :medicalAppointmentId,
-          cost = :cost,
-          payment_status = :payment_status,
-          updatedAt = NOW()
-      WHERE id = :id
-      `,
-      {
-        replacements: {
-          affiliateId,
-          medicalAppointmentId,
-          cost,
-          payment_status,
-        },
-        type: QueryTypes.UPDATE,
-      }
-    );
+    const [updatedCount] = await Invoice.update(fieldsToUpdate, {
+      where: { id: id },
+    });
 
-    const [updateInvoice] = await sequelize.query(
-      `
-      SELECT *
-      FROM invoices
-      WHERE id = :id
-      `,
-      {
-        replacements: { id },
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    if (!updateInvoice) {
+    if (updatedCount === 0) {
       return res
         .status(404)
-        .json({ message: "Factura no encontrado despues de actualizar" });
+        .json({ message: "Factura no encontrada o sin cambios" });
     }
+
+    const updateInvoice = await Invoice.findOne({
+      where: { id: id },
+    });
 
     res.status(200).json({
       message: "Factura actualizada correctamente",
@@ -100,7 +75,10 @@ export const updateInvoice = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al actualizar la factura" });
+    res.status(500).json({
+      message: "Error al actualizar la factura",
+      error: error.message || error,
+    });
   }
 };
 
@@ -195,18 +173,72 @@ export const getPendingInvoices = async (req, res) => {
   }
 };
 
-export const getTotalBillingByPlan = async (req, res) => {
+export const getInvoicesByUser = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const [results] = await sequelize.query(
-      `SELECT hp.name, SUM(f.amount) AS total
-       FROM invoices f
-       JOIN affiliates a ON f.affiliateId = a.userId
-       JOIN healthy_plans hp ON hp.id = a.healthyPlanId
-       GROUP BY hp.name`
+    const results = await sequelize.query(
+      `SELECT 
+	      i.*,
+          JSON_OBJECT(
+            'userId', p.userId,
+            'specialty', p.specialty,
+            'license_number', p.license_number,
+            'user', JSON_OBJECT(
+              'name', up.name,
+              'email', up.email
+              )
+          ) AS infoProfessional,
+          JSON_OBJECT(
+            'date', m.date,
+            'time', m.time
+          ) AS infoAppointment,
+           h.name AS nameCenter
+        FROM invoices i
+        LEFT JOIN medical_appointments m ON i.medicalAppointmentId = m.id
+        LEFT JOIN professionals p ON m.professionalId = p.userId
+        LEFT JOIN affiliates a ON m.affiliateId = a.userId
+        LEFT JOIN healthy_centers h ON m.healthyCenterId = h.id
+        LEFT JOIN users up ON p.userId = up.id
+        WHERE i.affiliateId = :id
+        ORDER BY createdAt DESC
+       `,
+      {
+        replacements: { id },
+        type: QueryTypes.SELECT,
+      }
     );
     return res.status(200).json({
-      message: "Facturacion total por plan de salud",
+      message: "Facturas pendientes encontradas",
       response: results,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const getTotalPendingByUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await sequelize.query(
+      `
+      SELECT 
+        COALESCE(SUM(cost), 0) AS totalPending
+      FROM invoices
+      WHERE affiliateId = :id
+        AND payment_status = 'Pendiente'
+      `,
+      {
+        replacements: { id },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    return res.status(200).json({
+      message: "Monto total de facturas pendientes",
+      totalPending: result.totalPending, // será 0 si no hay facturas pendientes
     });
   } catch (error) {
     console.error(error);

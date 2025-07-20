@@ -52,13 +52,11 @@ Professional.belongsTo(HealthyCenter, {
 //
 HealthyPlan.hasMany(Affiliates, {
   foreignKey: "healthyPlanId",
-  onDelete: "RESTRICT",
   onUpdate: "CASCADE",
   constraints: true,
 });
 Affiliates.belongsTo(HealthyPlan, {
   foreignKey: "healthyPlanId",
-  onDelete: "RESTRICT",
   onUpdate: "CASCADE",
   constraints: true,
 });
@@ -133,13 +131,11 @@ Invoice.belongsTo(Affiliates, {
 //
 MedicalAppointment.hasOne(Invoice, {
   foreignKey: "medicalAppointmentId",
-  onDelete: "RESTRICT", // evita borrar un plan si hay afiliados que lo usan
   onUpdate: "CASCADE",
   constraints: true,
 });
 Invoice.belongsTo(MedicalAppointment, {
   foreignKey: "medicalAppointmentId",
-  onDelete: "RESTRICT", // evita borrar un plan si hay afiliados que lo usan
   onUpdate: "CASCADE",
   constraints: true,
 });

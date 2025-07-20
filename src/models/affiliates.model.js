@@ -38,7 +38,6 @@ export const Affiliates = sequelize.define(
         key: "id",
       },
       allowNull: true,
-      onDelete: "RESTRICT", // evita borrar un plan si hay afiliados que lo usan
       onUpdate: "CASCADE",
     },
   },

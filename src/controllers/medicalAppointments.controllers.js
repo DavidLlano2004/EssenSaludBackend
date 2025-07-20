@@ -1,6 +1,7 @@
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
+import { MedicalAppointment } from "../models/medicalAppointments.model.js";
 
 export const createMedicalAppointMent = async (req, res) => {
   const { affiliateId, professionalId, healthyCenterId, date, state, time } =
@@ -54,58 +55,33 @@ export const createMedicalAppointMent = async (req, res) => {
 
 export const updateMedicalAppointment = async (req, res) => {
   const { id } = req.params;
-  const { affiliateId, professionalId, healthyCenterId, date_time, state } =
-    req.body;
+  const fieldsToUpdate = req.body;
 
   try {
-    // 1. Actualizar usuario
-    await sequelize.query(
-      `
-      UPDATE medical_appointments
-      SET affiliateId = :affiliateId,
-          medicalAppointmentId = :medicalAppointmentId,
-          cost = :cost,
-          payment_status = :payment_status,
-          updatedAt = NOW()
-      WHERE id = :id
-      `,
-      {
-        replacements: {
-          affiliateId,
-          professionalId,
-          healthyCenterId,
-          date_time,
-          state,
-        },
-        type: QueryTypes.UPDATE,
-      }
-    );
+    const [updatedCount] = await MedicalAppointment.update(fieldsToUpdate, {
+      where: { id: id },
+    });
 
-    const [updateMedicalAppointment] = await sequelize.query(
-      `
-      SELECT *
-      FROM medical_appointments
-      WHERE id = :id
-      `,
-      {
-        replacements: { id },
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    if (!updateMedicalAppointment) {
+    if (updatedCount === 0) {
       return res
         .status(404)
-        .json({ message: "Cita médica no encontrado despues de actualizar" });
+        .json({ message: "Cita no encontrado o sin cambios" });
     }
 
+    const updateAppointment = await MedicalAppointment.findOne({
+      where: { id: id },
+    });
+
     res.status(200).json({
-      message: "Cita médica actualizada correctamente",
-      response: updateMedicalAppointment,
+      message: "Cita actualizado correctamente",
+      response: updateAppointment,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al actualizar la Cita médica" });
+    res.status(500).json({
+      message: "Error al actualizar la cita",
+      error: error.message || error,
+    });
   }
 };
 
@@ -148,9 +124,12 @@ export const getMedicalAppointments = async (req, res) => {
           'userId', a.userId,
           'document_number', a.document_number,
           'address', a.address,
+          'phone' , a.phone,
           'user', JSON_OBJECT(
             'name', ua.name,
-            'email', ua.email
+            'email', ua.email,
+            'gender' , ua.gender,
+            'birthday' , ua.birthday
           ),
           'healthyPlan', JSON_OBJECT(
             'id', ha.id,
@@ -194,7 +173,7 @@ export const getMedicalAppointments = async (req, res) => {
       LEFT JOIN healthy_centers h ON m.healthyCenterId = h.id
 
       ORDER BY 
-        m.createdAt DESC;
+        m.createdAt DESC
       `,
       {
         type: QueryTypes.SELECT,
@@ -218,7 +197,7 @@ export const deleteMedicalAppointment = async (req, res) => {
 
   try {
     //
-    const [result] = await sequelize.query(
+      await sequelize.query(
       `
       DELETE FROM medical_appointments
       WHERE id = :id
@@ -237,6 +216,6 @@ export const deleteMedicalAppointment = async (req, res) => {
     console.error(error);
     return res
       .status(500)
-      .json({ message: "Error al eliminar el Cita médica" });
+      .json({ message: "Error al eliminar la cita médica" });
   }
 };
